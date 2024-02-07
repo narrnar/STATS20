@@ -1,2 +1,2 @@
 # STATS20
-Fall 2023/ STATS 20/ Professor Tsiang
+Fall 2023/UCLA/Professor Tsiang
