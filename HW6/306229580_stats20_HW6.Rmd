@@ -1,0 +1,264 @@
+---
+title: "Stats 20, F23 -- Homework 6"
+author: "Daren Sathasivam -- 306229580"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1a}
+reading_ease <- function(text) {
+  # Function to check if a letter is a vowel
+  is_vowel <- function(letter) {
+    # letter %in% c("a", "e", "i", "o", "u", "y")
+    grepl("[aeiou]", letter)
+  }
+  # Function to count syllables in a word
+  is_special_ending <- function(ending) {
+    is_es <- all(ending == c("e", "s"))
+    is_ed <- all(ending == c("e", "d"))
+    is_e_not_le <- ending[2] == "e" & ending[1] != "l"
+    is_es | is_ed | is_e_not_le
+  }
+  rm_special_endings <- function(word_letters) {
+    word_tail <- tail(word_letters, n = 2)
+    if (is_special_ending(word_tail)) {
+      if (word_tail[2] == "e") {
+        word_letters[-length(word_letters)]
+      } else {
+        head(word_letters, n = -2)
+      }
+    } else {
+      word_letters
+    }
+  }
+  count_syllables <- function(word) {
+    word_letters <- unlist(strsplit(word, split = ""))
+    if (length(word_letters) <= 3) {
+      1
+    } else {
+      word_letters <- rm_special_endings(word_letters)
+      word_vowels <- sapply(word_letters, is_vowel)
+      sum(word_vowels) - sum(diff(which(word_vowels)) == 1)
+    }
+  }
+  
+  # To count sentences
+  sentences <- tolower(strsplit(text, split = "[.!?:;]")[[1]])
+  sentences <- gsub(pattern = "[[:punct:]]", replacement = "", sentences)
+  total_sentences <- length(sentences)
+  
+  # To count words
+  words <- unlist(strsplit(sentences, split = " "))
+  words <- words[nchar(words) > 0]
+  total_words <- length(words)
+  
+  # To count syllables
+  total_syllables <- sum(sapply(words, count_syllables))
+  
+  # Calculate Flesch reading ease score
+  print(total_syllables)
+  print(total_words)
+  print(total_sentences)
+  ASL <- total_words / total_sentences
+  ASW <- total_syllables / total_words
+  RE <- 206.835 - (1.015 * ASL) - (84.6 * ASW)
+  RE
+}
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1b}
+source("waffles.R")
+waffles
+reading_ease(waffles)
+waffles <- c("We need to remember what's important in life: friends, waffles, work.", "Or waffles, friends, work.", "Doesn't matter, but work is third.")
+reading_ease(waffles)
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+
+
+## Question 2
+
+```{r Question 2}
+my_nchar <- function(x) {
+  # Initialize numeric vec
+  char_count <- numeric(0)
+  # Iterate through each element
+  for (i in seq_along(x)) {
+    count <- 0
+    # Iterate through each individual character
+    for (j in strsplit(x[i], "")[[1]]) {
+      count <- count + 1
+    }
+    char_count[i] <- count
+  }
+  char_count
+}
+char_vec <- c("fortnite", "awesome", "sauce")
+my_nchar(char_vec)
+nchar(char_vec)
+```
+<!-- ENTER YOUR EXPLANATION BELOW, FEEL FREE TO EDIT THE ABOVE CODE CHUNK -->
+
+## Question 3
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 3a}
+my_strrep <- function(x, times) {
+  # Initializers 
+  rep_vec <- character(max(length(x), length(times)))
+  idx <- 1
+  # Check if times arg has more elements than x arg
+  if (length(times) > length(x)) {
+    # Iterate through each element in times
+    for (i in seq_along(times)) {
+      rep_times <- times[i]
+      string <- x[idx]
+      word <- string
+      j <- 1
+      # Repeat the string the specified amount using a while loop
+      while (j < rep_times) {
+        string <- paste(string, word, sep = "")
+        j <- j + 1
+      }
+      # Store then increment i
+      rep_vec[i] <- string
+      idx <- idx + 1
+      if (idx > length(x)) {
+        idx <- 1
+      }
+    }
+    rep_vec
+  } else { # Same thing but for longer length of vector x arg
+    for (i in seq_along(x)) {
+      rep_times[idx]
+      string <- x[i]
+      word <- string
+      j <- 1
+      while (j < rep_times) {
+        string <- paste(string, word, sep ="")
+        j <- j + 1
+      }
+      rep_vec[i] <- string
+      idx <- idx + 1
+      if (idx > length(times)) {
+        idx <- 1
+      }
+    }
+    rep_vec
+  }
+}
+my_strrep("yay", c(1, 2, 3))
+strrep("yay", c(1, 2, 3))
+```
+
+## Question 4
+```{r Question 4a}
+'%is_in%' <- function(x, table) {
+  sapply(x, function(y) {any(grepl(y, table))})
+}
+group <- c("control", "treatment", "control", "treatment", "treatment")
+x <- c("control", "treatment", "placebo")
+x %is_in% group
+x %in% group
+group <- table(group)
+x %is_in% group
+x %in% group
+```
+
+
+
+## Question 5
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5a}
+my_gregexpr <- function(pattern, text) {
+  # Create an empty list with length of text
+  matched <- list(0)
+  # Iterate through the text to find matches
+  for (i in seq_along(text)) {
+    # Initializers
+    pattern_length <- nchar(pattern)
+    text_length <- nchar(text[i])
+    pos <- numeric(0)
+    # Iterate through text component 
+    for (j in seq_len(text_length - pattern_length + 1)) {
+      # If substr at jth element in text component matches, store start pos of match
+      if (substr(text[i], j, j + pattern_length - 1) == pattern) {
+        pos <- c(pos, j)
+      }
+    }
+    # Store result at ith component, -1 if no match
+    if (length(pos) > 0) {
+      matched[[i]] <- pos
+    } else {
+      matched[[i]] <- list(-1)
+    }
+  }
+  matched
+}
+x <- c("asbjadkhf", "asofubargasnfubar", "fubarsofgnoj")
+my_gregexpr("fubar", x)
+gregexpr("fubar", x)
+```
+
+
+## Question 6
+<!-- USE THE CODE CHUNK BELOW -->
+### a.
+```{r Question 6}
+pargsub <- function(text, patterns, replacements) {
+  # Find pos of patterns
+  matches <- lapply(patterns, function(pattern) {gregexpr(pattern, text)})
+  # Initialize result with original text
+  out <- text
+  # Function to replace substr at pos
+  substr_replace <- function(x, val, start) {
+    for (i in seq_along(start)) {
+      substr(x, start[i], start[i] + nchar(val[i]) - 1) <- val[i]
+    }
+    x
+  }
+  # Iterate through each pattern and the replacement
+  for (i in seq_along(patterns)) {
+    pattern_matches <- unlist(matches[[i]])
+    # Check for matches to current pattern (-1 not a match from gregexpr)
+    if (any(pattern_matches != -1)) {
+      # rep for recylcing replacement
+      replacement_vector <- rep(replacements[[i]], length(pattern_matches))
+      # Replace pattern
+      out <- substr_replace(out, replacement_vector, pattern_matches)
+    }
+  }
+  out
+}
+text <- "Good TIMEOFDAY STUDENT, how are you doing? STUDENT said you stopped by my office yesterday TIMEOFDAY. Goodbye STUDENT"
+output <- pargsub(text, c("STUDENT", "TIMEOFDAY"), list(c("Ethan", "Raymond"), c("afternoon", "morning")))
+output
+# Expected output: "Good *afternoon* *Ethan*, how are you doing? *Raymond* said you stopped by my office yesterday *morning*. Goodbye *Ethan*"
+# pargsub("red, green, blue", c("red", "green", "blue"), list("green", "blue", "red"))
+```
+
+### b.
+```{r}
+load("madlib.RData")
+# ls("madlib.RData")
+x <- 1:10
+sample(x)
+set.seed(1)
+x1 <- sample(x)
+set.seed(2)
+x2 <- sample(x)
+# pargsub(madlib, x1)
+```
+
