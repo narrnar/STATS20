@@ -1,0 +1,281 @@
+---
+title: "Stats 20, F23 -- Homework 2"
+author: "Daren Sathasivam -- 306229580"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+```{r Question 1 Background}
+mixed1 <- c(TRUE, FALSE, FALSE, TRUE, 4, 0, 3)
+mixed1
+mixed2 <- c(TRUE, FALSE, FALSE, TRUE, 4, 0, "3")
+mixed2
+mixed3 <- c(c(TRUE, FALSE, FALSE, TRUE, 4, 0), "3")
+mixed3
+```
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+mixed3 produces a different result in which the output is all numerical instead of being mixed with different data types in mixed2. mixed2 has a string vector due to it being a combination of logical, numeric, and character values. Whereas mixed3's nested combination consists of logical and numeric values would result in a numeric vector. The numeric output is then combined with a string value, which then results in a character vector.
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW, IT CAN BE JUST THE COMMAND. NO NEED TO STORE AN OBJECT -->
+```{r Question 1b}
+mixed4 <- c(TRUE, FALSE, c(FALSE, TRUE, 4, 0), "3")
+mixed4
+```
+
+## Question 2
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+```{r}
+as.numeric(mixed2)
+
+as.numeric(mixed3)
+```
+When mixed2 is attempted to being coerced into numeric values, it fails to do so due to the string vector. The values of "TRUE" and "FALSE" as strings cannot be coerced into numeric values unless they remained as logical values. When mixed3 is coerced into numeric values, it is allowed due to the logical values being converted into numerical values resulting in the 1's and 0's.
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW -->
+```{r}
+as.logical(mixed2)
+
+as.logical(mixed3)
+```
+When mixed2 is being coerced into logical values, the first four elements retain their logical values while the numeric and character elements produce an "NA" output. This is because character and numeric values cannot be coerced into logical values. In mixed3, all elements produce an "NA" output due to it being a character vector with the logical values convereted into numeric values before being coerced. 
+
+### (c)
+<!-- ENTER YOUR ANSWER BELOW, IT CAN BE JUST THE COMMAND. NO NEED TO STORE AN OBJECT -->
+```{r Question 2c}
+as.logical(as.numeric(mixed3)) # Coerce to numeric first then coerce to logical.
+```
+
+## Question 3
+
+### (a)
+<!-- ENTER YOUR ANSWERS BELOW, THEY CAN BE JUST THE COMMANDs. NO NEED TO STORE OBJECTs -->
+(i) seq() function
+```{r Question 3a}
+seq(1, 25)
+```
+(ii) colon operator
+```{r}
+1:25
+```
+(iii) seq_len() function
+```{r}
+seq_len(25)
+```
+(iv) seq_along() function
+```{r}
+seq_along(1:25)
+```
+
+
+### (b)
+<!-- ENTER YOUR ANSWERS BELOW, THEY CAN BE JUST THE COMMANDs. NO NEED TO STORE OBJECTs -->
+```{r Question 3b}
+# (i)
+seq(8, 2, by = -0.5)
+
+# (ii)
+rep(c(-1, 0, 3, 5), 5)
+
+# (iii)
+rep(seq(5, 1), 5)
+
+# (iv)
+rep(seq(5, 1), rep(5, 5))
+
+# (v)
+rep(seq(10, 6), seq(5))
+
+```
+
+### (c)
+<!-- ENTER YOUR ANSWER BELOW -->
+The following sequence cannot be generated using *only* the **seq()** and **rep()** function because the logic of both functions cannot be combined to generate and emulate the pattern of this complex sequence. This is different as it requires the use of **c()** function to create the sequences complexity.
+
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 3c}
+# Solution using "each"
+rep(seq(10, 6, by = -1), 5) - rep(0:4, each = 5) 
+
+# Without "each"
+rep(seq(10, 6, by = -1), 5) - rep(0:4, rep(5, 5))
+```
+
+
+## Question 4
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 4a}
+sin_val <- sin(c(0, seq(1:100) * pi)) # Combine 0 with 1-100 bc 1-index
+sin_val
+```
+<!-- ENTER YOUR EXPLANATION BELOW -->
+The output does not match what would be expected through math. sin(0) results in 0 and so should sin(2 * pi) but the result is a numerical value different from 0. In addition, sin(1 * pi) should also result in 0. All even k-values result in a negative output and odd k-values result in a positive output which is contradictory to mathematical expectations. 
+
+## Question 5
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 5a}
+my_skew <- function(x){
+  n <- length(x)
+  xbar <- mean(x) # Sample mean
+  skew <- (sqrt(n) * sum((x - xbar)^3)) / (sum((x - xbar)^2))^(3/2) # In lec, split into more than one line
+  skew
+}
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5b}
+running_times <- c(51, 40, 57, 34, 47, 50, 50, 56, 41, 38)
+my_skew(running_times)
+```
+
+### (c)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 5c}
+my_skew_one <- function(x){
+  n <- length(x)
+  xbar <- mean(x) # Sample mean
+  skew <- (sqrt(n) * (sum(x^3) - 3 * xbar * sum(x^2) + 2 * n * xbar^3)) / ((sum(x^2) - n * xbar^2)^(3/2))
+  skew
+}
+my_skew_one(running_times)
+```
+
+### (d)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5d}
+running_times * 1e10
+my_skew(running_times)
+my_skew_one(running_times)
+```
+<!-- ENTER YOUR EXPLANATION BELOW -->
+The results remain the same. This is because all of the values have been multiplied by the same value resulting in the same skew. 
+
+### (e)
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 5e}
+my_skew(running_times) - my_skew_one(running_times)
+```
+
+<!-- ENTER YOUR ANSWER BELOW -->
+The result is not exactly 0 due to the minuscule difference in the normal skew and one-pass skew. It can be the result of having  different formulas. The difference in skews is negligible due to it being an extremely small value. Loses precision due to how small the difference is in between the one-pass formula values.
+
+## Question 6
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 6a}
+my_length <- function(x){
+  x <- as.numeric(x)
+  max(max(seq_along(x), 0))
+}
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 6b}
+my_length(numeric(0))
+my_length(seq(1, 99, by =2))
+my_length(c("waffles", "friends", "work"))
+```
+
+## Question 7
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 7a}
+my_rev <- function(x){
+  reversed <- x[max(length(x), 0):0]
+  reversed
+}
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 7b}
+my_rev(numeric(0))
+my_rev(seq(1, 99,  by =2))
+my_rev(c("waffles", "friends", "work"))
+```
+
+## Question 8
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 8a}
+front <- function(x, n){
+  min_n <- min(length(x), n)
+  x[seq(1, min_n)]
+  x
+}
+
+n <- 6
+front(numeric(0), n)
+front(seq(1, 99,  by =2), n)
+front(c("waffles", "friends", "work"), n)
+```
+
+### (b)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 8b}
+back <- function(x, n){
+  beginning <- max(length(x) - n, 0)
+  result <- x[seq(length(x), beginning)]
+  result
+}
+
+n <- 6
+back(numeric(0), n)
+back(seq(1, 99,  by =2), n)
+back(c("waffles", "friends", "work"), n)
+```
+
+### (c)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 8c}
+insert_at <- function(x, values, at){
+  at <- min(at, length(x) + 1) # Attempt to fix edge case when at = length(x)
+  
+  # Create beginning of modified array
+  start <- min(at - 1, max(at, 1))
+  beginning <- x[seq(0, start)]
+  
+  # Create ending of modified array
+  back_of <- min(length(x), at)
+  ending <- x[seq(back_of, length(x))]
+  
+  # Combine beginning, new values, and ending together
+  new_vec <- c(beginning, values, ending)[1:8] # [1:8] referenced from Gavin Cardeno
+  new_vec
+}
+```
+
+### (d)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 8d}
+insert_at(1:5, c(0, 0, 0), at = 1)
+insert_at(1:5, c(0, 0, 0), at = 3)
+insert_at(1:5, c(0, 0, 0), at = 5)
+insert_at(1:5, c(0, 0, 0), at = 6)
+```
