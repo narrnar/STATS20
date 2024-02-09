@@ -1,0 +1,377 @@
+---
+title: "Stats 20, F23 -- Homework 3"
+author: "Daren Sathasivam -- 306229580"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1a}
+char <- c("4", "2", "1", "0")
+num <- 0:3
+charnum <- data.frame(char, num, stringsAsFactors = TRUE)
+
+as.numeric(char)
+as.numeric(charnum$char)
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+The outputs of both as.numeric(char) is "4 2 1 0" and as.numeric(charnum$char) is "4 3 2 1". The difference between the two is that as.numeric(char) coerces the characters into numeric values. When as.numeric(charnumSchar) dollarsign extracts the char column from the dataframe which has the levels "0 1 2 4" which is then converted into the output of "4 3 2 1". 
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1b}
+charnum$char
+as.character(charnum$char)
+as.numeric(as.character(charnum$char))
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+
+## Question 2
+
+```{r Question 2}
+simple_list <- list("vector" = 1:10, "matrix" = matrix(6:1, nrow = 3, ncol = 2))
+simple_list
+```
+<!-- ENTER YOUR EXPLANATION BELOW, FEEL FREE TO EDIT THE ABOVE CODE CHUNK -->
+### (a)
+```{r}
+# simple_list$NULL <- NULL
+```
+The command does not work due to incorrect syntax. The '$NULL' operator is used to extract a nonexistent column from a dataframe instead of indicating an index to insert a new list component. Additionally, the use of "NULL" is incorrect due to it being a reserved object in R which indicates an absence of an object.
+
+### (b)
+```{r}
+simple_list$"null_component" <- list(NULL)
+simple_list
+length(simple_list) == 3
+```
+
+### (c)
+```{r}
+simple_list$vector <- list(NULL)
+simple_list
+```
+
+
+## Question 3
+
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 3a}
+my_scale <- function(x){
+  # Check for numeric
+  if (!is.numeric(x)) {
+    stop("Input must be numeric!")
+  }
+  min_scale <- min(x, na.rm = TRUE)
+  max_scale <- max(x, na.rm = TRUE)
+  if (is.null(attributes(x))) {
+    # Scale [0, 1] if no attributes are set
+    a <- 0
+    b <- 1
+    # min-max scaling for [0, 1]
+    scaled_values <- (x - min_scale) / (max_scale - min_scale)
+    attributes(scaled_values) <- list(a = min_scale, b = max_scale)
+  } else {
+    # Scale to [a, b]
+    a <- attributes(x)$a
+    b <- attributes(x)$b
+    # min-max scaling for [a, b] when a < b
+    scaled_values <- a + ((x - min_scale) * (b - a)) / (max_scale - min_scale)
+    attributes(scaled_values) <- list(a = a, b = b)
+  }
+  scaled_values
+}
+x <- c(3, 0, 6, 2, 2, 9, 5, 8, 0)
+my_scale(x)
+my_scale(my_scale(x))
+```
+
+
+## Question 4
+
+### (a)
+Write a function called **"my_dim_mean"** that inputs either a matrix or data frame and outputs the mean of the specified dimension using "row"/"col" or "1"/"2".\n
+The function should be able to handle an empty matrix or data frame and then output an empty numeric vector. Additionally, the matrix should be able to handle NAs and calculate the mean excluding the NAs. Lastly, it should be able to handle an invalid dimension argument. \n
+
+Edge Cases: \n
+
+Empty Matrix or Data Frame:
+```{r}
+# my_dim_mean(matrix(0, nrow = 0, ncol = 0), 1)
+# Expected output:
+# numeric(0)
+```
+Matrix or Data Frames wth NAs:
+```{r}
+# my_dim_mean(matrix(c(1, 2, NA, 4, 5, 6), nrow = 2), "col")
+# Expected Output:
+# [1] 1.5  NA 5.5
+```
+Invalid Dimension:
+```{r}
+# my_dim_mean(matrix(1:6, 2, 3), 0)
+# Expected Output:
+# Invalid dimension argument! Use 'row'/'col' or '1'/'2'.
+```
+
+\n
+**Ideal Solution**
+```{r Question 4a}
+my_dim_mean <- function(input, dim) {
+  if (dim == "row" || dim == 1) {
+    mean <- apply(input, 1, sum) / ncol(input)
+  } else if (dim == "col" || dim == 2) {
+    mean <- apply(input, 2, sum) / nrow(input)
+  } else {
+    stop("Invalid dimension argument! Use 'row'/'col' or '1'/'2'.")
+  }
+  mean
+}
+```
+
+### (b)
+Consider the following function **my_positive_sum()** designed to find the sum of all positive values within a vector x. There are two errors in the following code. Identify and explain the errors, and state what change needs to be implemented to fix each error.
+```{r Question 4b}
+# Erroneous code:
+my_positive_sum <- function(x) {
+  if(any(is.na(x))) {
+    pos_sum <- NA
+  } else {
+    pos_val <- x[x > 0]
+    pos_sum <- sum(pos_val)
+  }
+  pos_sum
+}
+```
+Errors:\n
+- Error 1: The 'any(is.na(x))' expression returns 'TRUE' when there is at least one 'NA' in the vector x. In order to correctly check the presence of 'NA' values in vector x, '!all(!is.na(x))' to check if there is at least one NA value. \n
+- Error 2: In the case of the vector containing no positive values, the function returns 'NULL' instead of '0'. To handle this case, 'ifelse(is.null(pos_sum), 0, pos_sum)' should be placed within the 'else' statement.
+```{r}
+# Fixed Code:
+my_positive_sum <- function(x) {
+  if (!all(!is.na(x))) {
+    pos_sum <- NA
+  } else {
+    pos_val <- x[x > 0]
+    pos_sum <- sum(pos_val)
+    pos_sum <-   ifelse(is.null(pos_sum), 0, pos_sum)
+  }
+  pos_sum
+}
+```
+
+
+### (c)
+Question 1:\n
+
+Consider the following matrix:
+```{r}
+mat_data <- matrix(c(1:6, 7:12, 13:18), nrow = 3, ncol = 6)
+rownames(mat_data) <- c("Alpha", "Bravo", "Charlie")
+colnames(mat_data) <- c("X1", "X2", "Y2", "Y2", "Z1", "Z2")
+mat_data
+```
+What is the output of the following code?\n 
+
+`apply(mat_data, 2, sum)`
+
+a. X1 X2 Y2 Y2 Z1 Z2  \n
+
+   2  5  8 11 14 17 \n
+   
+b. X1 X2 Y2 Y2 Z1 Z2 \n
+
+   6 15 24 33 42 51 \n
+
+c. Alpha   Bravo Charlie `<NA>` `<NA>` `<NA>`\n
+    
+    8.5     9.5    10.5  NA   NA   NA \n
+
+d. X1 X2 Y2 Y2 Z1 Z2 \n
+
+    3  6  9 12 15 18 \n
+
+e. Error: subscript out of bounds \n
+
+Correct answer: Option (b.)
+
+Question 2:\n
+
+Consider the following list:
+```{r}
+q_list <- list(a = list(b = list(c = 1:5)))
+```
+What would the output for the following command be?\n
+
+`q_list[['a']][[b]][[c]][[2]]`
+
+a. 2\n
+
+b. `$a$b$c`\n
+
+    2\n
+
+c. 1
+
+d. `$a$b`\n
+
+    2\n
+
+e. Error: recursive indexing failed at level 3
+
+
+## Question 5
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5a}
+my_unlist <- function(x){
+  # Function to flatten out a recursive list
+  flatten_list <- function(y) {
+    flat <- list(0)
+    for (elem in y) {
+      if (is.list(elem)) {
+        flat <- c(flat, flatten_list(elem))
+      } else {
+        flat <- c(flat, elem)
+      }
+    }
+    flat
+  }
+  # Flatten out list 'x'
+  flattened <- flatten_list(x)
+  # Get highest mode and empty vec initializers
+  highest_mode <- max(sapply(flattened, mode))
+  out_vec <- vector(mode = highest_mode, length = 0)
+  # Iterate through elements in list
+  for (element in flattened) {
+    # Convert factors into integers
+    if (is.factor(element)) {
+      element <- as.integer(element)
+    }
+    out_vec <- c(out_vec, element)
+  }
+  # If the result is a factor, convert it into a factor with levels until the max
+  if (is.factor(out_vec)) {
+    out_vec <- factor(out_vec, levels = seq_len(max(out_vec)))
+  }
+  out_vec
+}
+# Test cases:
+my_unlist(list(c(2, 1, 1), c(3, 2, 1), 2))
+my_unlist(list(factor(c("a", "a", "b", "c")),
+factor(c("b", "c", "e")),
+factor(c("a", "d", "b"))))
+my_unlist(list(factor(c("a", "b")), c(1, 2)))
+my_unlist(list(factor(c("a", "b")), factor(c("b", "c")), c("a", "b")))
+my_unlist(list(list(1:3, 1:4), list(list(1:3, 1:3, list(1:4, 1:5)))))
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5b}
+stat_mode <- function(x, first = FALSE) {
+  # unlist/flatten list and table initializers
+  flatten <- unlist(x) # my_unlist did not work for case 4
+  freq_table <- table(flatten)
+  # Identify mode and create numeric values for frequencies that are equal to the max frequency
+  modes <- as.character(names(freq_table[freq_table == max(freq_table)]))
+  # If optional argument first is TRUE return the first mode
+  if (first) {
+    modes[1]
+  } else {
+    if (any(is.factor(flatten))) {
+      factor(modes, levels = levels(unlist(x)))
+    } else {
+      modes
+    }
+  }
+}
+# Test cases:
+stat_mode(c(FALSE, FALSE, TRUE, TRUE, FALSE))
+stat_mode(list(c(2, 1, 1), c(3, 2, 1), 2)) # should be 2 1
+stat_mode(list(c(2, 1, 1), c(3, 2, 1), 2), first = TRUE) # should be 2
+stat_mode(list(factor(c("control", "treatment1", "control")),
+factor(c("control", "treatment2")))
+)
+```
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5c}
+df_summary <- function(df){
+  if (is.null(df) || nrow(df) == 0) {
+    stop("Input data frame is NULL or has invalid dimensions!")
+  }
+  # Initializers
+  n_obs <- nrow(df)
+  n_var <- ncol(df)
+  var_names <- sort(names(df))
+  column_data <- vector("list", n_var)
+  names(column_data) <- var_names
+  # Iterate through the columns in the variable names
+  for (col in var_names) {
+    column_class <- class(df[[col]])
+    na_count <- sum(is.na(df[[col]]))
+    column_info <- list(class = column_class, na_count = na_count)
+    # Input numeric data if numeric and if else input mode data
+    if ("numeric" %in% column_class) {
+      column_info$min <- min(df[[col]], na.rm = TRUE)
+      column_info$max <- max(df[[col]], na.rm = TRUE)
+      column_info$mean <- mean(df[[col]], na.rm =TRUE)
+    } else {
+      modes <- stat_mode(df[[col]]) # Unsure if output will be correct bc part b incorrect
+      mode_values <- table(c(as.character(df[[col]]), "NA"))
+      column_info$modes <- modes
+      column_info$mode_count <- mode_values[as.character(modes)]
+    }
+    # Recursive indexing to add column_info into col component
+    column_data[[col]] <- column_info
+  }
+  # Create the resulting list
+  result <- list("n_obs" = n_obs, "n_var" = n_var, "var_names" = var_names, "column_data" = column_data)
+  result
+}
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL). ONE SENTENCE OR 'MY ANSWER IS __' IS FINE. -->
+
+### (d)
+```{r}
+load("starwars.RData")
+# head(starwars)
+# tail(starwars)
+df_summary(starwars)
+```
+
+### (e)
+With only using the output object from part b, the most common starships that the characters have piloted is the *X-wing* with a count of 3. However, looking at the data suggests that the most common starship used stored under *chr[1]* with a count of 14.
+
+
+## Question 6
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 6}
+impute <- function(x, col = NULL, center = mean, margin = 2) {
+  # When col is not specified use all numeric columns
+  if (is.null(col)) {
+    col <- which(sapply(x, is.numeric))
+  }
+  # Iterate through col and replace NA values with the center specified columns
+  for (c in col) {
+    x[, c][is.na(x[, c])] <- center(x[, c], na.rm = TRUE)
+  }
+  x
+}
+x_mat <- cbind(c(NA, 7, NA, 1, NA), c(10, 6, 3, 7, NA), c(5, 7, 6, 3, 2))
+
+impute(x_mat, col = 1, center = mean, margin = 2)
+```
+
