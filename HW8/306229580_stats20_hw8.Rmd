@@ -1,0 +1,172 @@
+---
+title: "Stats 20, F23 -- Homework 8"
+author: "Daren Sathasivam -- 306229580"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1a}
+college <- read.table("CollegeMidwest.txt", header = TRUE)
+# head(college)
+# dim(college)
+set.seed(9999)
+# Common quantities
+n <- 30 # The sample size
+N <- nrow(college) # The population size
+M <- 1000 # Number of samples/repetitions
+diff_means <- replicate(M, {
+  on_campus_sample <- sample(college$CumGpa[college$OnCampus == "Y"], n, replace = TRUE)
+  off_campus_sample <- sample(college$CumGpa[college$OnCampus == "N"], n, replace = TRUE)
+  mean(on_campus_sample) - mean(off_campus_sample)
+})
+xbar_diffs <- replicate(M, {
+  index <- sample(N, n)
+  sample_i <- college[index, ]
+  with(sample_i, diff(tapply(CumGpa, OnCampus, mean)))
+})
+```
+
+### (b & c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1b}
+# SE = sd/sqrt(n)
+mean_diff_means <- mean(diff_means)
+se_diff_means <- sd(diff_means)/sqrt(M)
+sd_diff_means <- sd(diff_means)
+
+hist(diff_means, prob = TRUE, breaks = 25, xlab = expression(bar(x)[on] - bar(x)[off]), main = "Sampling Distribution of Difference in Means", col = "lightblue", density = 30)
+
+abline(v = mean_diff_means - 2 * sd_diff_means, col = "red", lty =2)
+abline(v = mean_diff_means + 2 * sd_diff_means, col = "red", lty =2)
+# x <- seq(min(diff_means), max(diff_means), length = 1000)
+# # PDF of Normal Distribution
+# y <- (1 / (sd_diff_means * sqr(2 * pi))) * exp(-0.5 * ((x - mean_diff_means) / sd_diff_means)^2)
+x <- seq(min(diff_means), max(diff_means), length = M)
+y <- dnorm(x, mean_diff_means, sd_diff_means)
+lines(x, y, col = "blue", lwd = 2)
+
+curve(dnorm(x, mean = mean_diff_means, sd = sd_diff_means), lwd = 2, col = "blue",
+      add = TRUE)
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (d)
+```{r}
+prob_greater_than_0.48 <- mean(diff_means > 0.48)
+prob_greater_than_0.48
+sum(diff_means > 0.48) / M 
+```
+
+
+
+## Question 2
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 2a}
+college <- read.table("CollegeMidwest.txt", header = TRUE)
+set.seed(30)
+# sample_data <- sample(college$CumGpa, 30)
+# sample_data
+N <- nrow(college)
+college_sample <- college[sample(N, size = 30), ]
+head(college_sample)
+sample_gpa <- college_sample$CumGpa
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 2b}
+t_obs <- (mean(sample_gpa) - 3.5) / (sd(sample_gpa) / sqrt(length(sample_gpa)))
+t_obs
+```
+The observed t-statistic of -2.1371 means that the observed sample mean cumulative GPA of 3.298 is 2.371 standard erros below the expected mean cumulative GPA of 3.5, assuming the null hypothesis that the true mean cumulative GPA of all students at the COllege of the Midwst is 3.5.
+
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r}
+t_test <- t.test(sample_gpa, mu = 3.5)
+t_test
+```
+The p_value from our t-test is 0.0411538, which is less than the significance level of alpha = 0.05. Thus we would reject the null hypothesis, so we have sufficient evidence to conclude that the true mean cumulative GPA of all students at the College of the Midwest is significantly different from 3.5.
+
+
+### (d)
+```{r}
+mode(t_test)
+class(t_test)
+t_test$conf.int
+```
+
+
+## Question 3
+
+<!-- PUT YOUR get_minimum_coins() FROM HW 1 HERE -->
+```{r Question 3 background} 
+
+```
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 3a}
+
+```
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 3b}
+
+```
+
+### (c)
+```{r}
+
+```
+
+
+## Question 4
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 4a}
+cw_points <- read.table("cw_points.txt", header = TRUE)
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 4b}
+
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 4c}
+
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (d)
+```{r}
+
+```
+
+### (e)
+```{r}
+
+```
+
