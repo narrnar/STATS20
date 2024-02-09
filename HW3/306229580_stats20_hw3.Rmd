@@ -1,0 +1,419 @@
+---
+title: "Stats 20, F23 -- Homework 3"
+author: "Daren Sathasivam -- 306229580"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1a}
+commute_times <- c(14, 12, 20, 19, 15, 20, 28, 20, 20, 18)
+
+outliers <- abs(commute_times - mean(commute_times)) > sd(commute_times)
+# Logical Index
+outliers 
+# Commute times that were more than one standard deviation away
+commute_times[outliers]
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1b}
+in_sd <- abs(commute_times - mean(commute_times)) <= sd(commute_times)
+# Logical Index
+in_sd
+# Commute times that are within one standard deviation
+commute_times[in_sd]
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1c}
+prop_in_sd <- mean(in_sd)
+# Proportion of days within one standard deviation
+prop_in_sd
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+
+## Question 2
+
+```{r Question 2}
+NA & TRUE
+NA & FALSE
+NA | TRUE
+NA | FALSE
+```
+<!-- ENTER YOUR EXPLANATION BELOW, FEEL FREE TO EDIT THE ABOVE CODE CHUNK -->
+For **NA & TRUE**, the output is "**NA**" due to it being a logical "&" operation which results in a "FALSE" if at any point there is a "FALSE" in the argument. Similarly, it will result "NA" if at any point there is a value that is unknown/"NA". 
+
+For **NA & FALSE**, the output is "**FALSE**" due to it being a logical "&" argument that will output "FALSE" if any of the values were to be "FALSE". Because the NA is an unknown value, it handles the output according to the "FALSE" value rather than the "NA" value.
+
+For **NA | TRUE**, the output is "**TRUE**" due to the logical "|" operator placing more importance on the "TRUE" value due. In a situation with "or", a "TRUE" value being present in the argument will always result in a "TRUE" output.
+
+For **NA | FALSE**, the output is "**NA**" due to the logical "|" comparison between an "NA" value and "FALSE" value where it puts more precedence on the unknown value rather than the known "FALSE" value.
+
+The unknown/"NA" value presents an uncertainty in certain situations which is taken into account when using logical operators. When there is an uncertainty in certain situations, the logical operator will choose the unknown value over due to the possibility of it being a value that takes precedence over the other. 
+
+## Question 3
+
+<!-- PUT YOUR get_minimum_coins() FROM HW 1 HERE -->
+```{r Question 3 background} 
+get_minimum_coins <- function(cents) {
+  no_quart <- cents %/% 25
+  remainder <- cents %% 25
+
+  no_dimes <- remainder %/% 10
+  remainder <- remainder %% 10
+
+  no_nicks <- remainder %/% 5
+  remainder <- remainder %% 5
+
+  no_penns <- remainder %/% 1
+
+  whole <- no_quart + no_dimes + no_nicks + no_penns
+  # return(whole) not allowed
+  whole
+}
+```
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+The "get_minimum_coins" function is not vectorized. It is not vectorized due to taking in a single input rather than having the ability to take in a vector inputs. Additionally, it uses step-by-step calculations rather than efficiently going through the number of coins using different, more efficient methods. For the function to be vectorized it would need to be reconstructed to be able to handle multiple inputs. 
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 3a}
+
+```
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 3b}
+# Get minimum number of coins through 1-99 and then get maximum number of minimum number of coins. Which then handles the indices where the max number of min coins is.
+which(get_minimum_coins(1:99) == max(get_minimum_coins(1:99))) 
+```
+
+## Question 4
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 4a}
+my_min <- function(x, na.rm = FALSE){
+  # Remove NAs
+  if (na.rm) {
+    x <- x[!is.na(x)]
+  }
+  # Initialize first non-NA element
+  min_val <- x[1]
+  # Iterate through x to find min value and replace if min_val is greater than the next element
+  for (i in x) {
+    if (!is.na(i) && min_val > i) { 
+      min_val <- i
+    }
+  }
+  # For the case with na.rm = FALSE
+  if (!na.rm && any(is.na(x))) {
+    min_val <- NA
+  }
+  min_val
+}
+```
+
+###
+<!-- USE THE CODE CHUNK BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 4b}
+# (i)
+my_min(c(4, 1, 0, 2, -3, -5, -4))
+# (ii)
+my_min(c("bears", "beets", "Battlestar Galactica"))
+# (iii)
+my_min(7)
+# (iv)
+my_min(c("Pawnee", "rules", "Eagleton", NA), na.rm = TRUE)
+my_min(c("Pawnee", "rules", "Eagleton", NA), na.rm = FALSE)
+# (v)
+my_min(NA, na.rm = TRUE)
+my_min(NA, na.rm = FALSE)
+```
+
+
+## Question 5
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5a}
+fib1 <- 1
+fib2 <- 1
+full_fib <- c(fib1, fib2)
+while (fib1 + fib2 < 500) {
+  fib2 <- sum(fib1, fib2)
+  full_fib <- c(full_fib, fib2)
+  fib1 <- fib2 - fib1
+}
+full_fib
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5b}
+full_fib <- c(1, 1)
+while (sum(full_fib[length(full_fib)], full_fib[length(full_fib) - 1]) < 500) {
+  full_fib <- c(full_fib, sum(full_fib[length(full_fib)], full_fib[length(full_fib) - 1]))
+}
+full_fib
+```
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5c}
+full_fib <- c(1, 1)
+while (sum(full_fib[length(full_fib)], full_fib[length(full_fib) - 1]) < 1e9) {
+  full_fib <- c(full_fib, sum(full_fib[length(full_fib)], full_fib[length(full_fib) - 1]))
+}
+full_fib
+max(seq_along(full_fib)) 
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL). ONE SENTENCE OR 'MY ANSWER IS __' IS FINE. -->
+My answer is 44 Fibonacci numbers less than 1,000,000,000
+
+## Question 6
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 6}
+# jerry <- 2:8 * 5 %% 3^-2:7 > 2
+jerry <- 2:((8 * 5 %% 3)^-2:(7 > 2))
+jerry
+```
+
+## Question 7
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 7a}
+my_ifelse <- function(test, yes, no){
+  vec <- seq_along(test)
+  vec[test] <- yes[test == TRUE]
+  vec[test == FALSE] <- no[test == FALSE]
+  vec
+}
+
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 7b}
+x <- (1:10) * pi
+my_ifelse(x %% 1 >= 0.5, x %/% 1 + 1, x %/% 1)
+ifelse(x %% 1 >= 0.5, x %/% 1 + 1, x %/% 1)
+```
+
+### (c)
+<!-- CREATE THE FUNCTIONs IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTIONs AND THEIR INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 7c}
+my_abs <- function(x){
+  my_ifelse(x >= 0, x, -x) # Use my_ifelse() checking whether or not a value is greater than 0. The "yes"argument is a +x whereas the "no" argument is -x
+}
+my_abs(x)
+abs(x)
+
+my_sign <- function(x){
+  my_ifelse(x < 0, (x == my_abs(x)) - 1, x == my_abs(x)) # Test for when x < 0, yes argument is when the vector is identical to abs(x) - 1, no argument when vector x is identical to abs(x)
+}
+my_sign(x)
+sign(x)
+```
+<!-- REMINDER TO USE my_ifelse() TO WRITE THE FUNCTIONS. THERE ARE OTHER WAYS TO WRITE THESE FUNCTIONS WITHOUT USING my_ifelse() BUT PLEASE FOLLOW THE DIRECTIONS. -->
+
+## Question 8
+
+### (a)
+<!-- CREATE THE FUNCTIONs IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTIONs AND THEIR INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 8a}
+merge <- function(left, right){
+  merged <- numeric(0)
+  while (length(left) > 0) {
+    if (length(right) > 0) {
+      if (left[1] < right[1]) {
+        merged <- c(merged, left[1])
+        left <- left[-1]
+      } else {
+        merged <- c(merged, right[1])
+        right <- right[-1]
+      }
+    } else {
+      merged <- c(merged, left)
+      left <- numeric(0)
+    }
+  }
+  # Output
+  merged <- c(merged, right)
+  merged
+}
+
+merge_sort <- function(x){
+  if (length(x) <= 1) { # for length x <= 1, return x
+    x
+  } else { # length x > 1
+    # Split vector "x" in the middle then form left and right vectors
+    middle <- length(x) %/% 2
+    left <- x[1:middle]
+    right <- x[(middle + 1):length(x)]
+    
+    sorted_left <- merge_sort(left)
+    sorted_right <- merge_sort(right)
+    
+    x <- merge(sorted_left, sorted_right)
+  }
+  x
+}
+
+
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 8b}
+merge_sort(numeric(0))
+merge_sort(7)
+merge_sort(10:1)
+```
+
+## Question 9
+<!-- MAKE SURE dna.RData IS IN THE SAME DIRECTORY (FOLDER) AS THIS .RMD -->
+```{r Question 9 background}
+load("dna.RData")
+```
+
+### (a)
+<!-- CREATE THE FUNCTION AND TEST IT AS ASKED IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 9a}
+## --- Incorrect output for 9b but works for 9a --- ##
+locate_motif <- function(strand, motif){
+  # Initializers
+  strand_length <- length(strand)
+  motif_length <- length(motif)
+
+  # If lengths not equal return integer(0)
+  if (strand_length != motif_length) {
+    integer(0)
+  }
+
+  start_pos <- integer(0)
+  for (i in 1:(strand_length - motif_length + 1)) { # iterate through strand
+    if (all(strand[i:(i + motif_length - 1)] == motif)) { # if all of strand and motif elements match
+      start_pos <- i # index where the matched elements begin
+    } else {
+      integer(0)
+    }
+  }
+  start_pos
+}
+
+locate_motif(dna1, c("G", "A", "T", "T", "A", "C", "A"))
+```
+
+### (b)
+<!-- CREATE THE FUNCTION AND TEST IT AS ASKED IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 9b}
+seq1 <- c("A", "C", "A", "G", "T")
+seq2 <- c("T", "A", "G", "T", "A")
+
+## --- Produces Warning w/ no Output --- ##
+# extract_longest_substring <- function(strand1, strand2) {
+#   # Initializers
+#   s1_length <- length(strand1)
+#   s2_length <- length(strand2)
+#   shared_length <- 0
+#   shared_substring <- character(0)
+#   # Iterate through both strand1 and strand2
+#   for (i in 1:s1_length) {
+#     for(j in 1:s2_length) {
+#       motif <- locate_motif(strand1[i:s1_length], strand2[j:s2_length])
+#       motif_length <- length(motif)
+# 
+#       if (motif_length > 0) {
+#         shared_length <- motif_length
+#         shared_substring <- motif
+#       }
+#     }
+#   }
+#   shared_substring
+# }
+
+## --- Modified locate_motif function to output vector rather than start index --- ##
+locate_motif <- function(strand, motif) {
+  # Initializers
+  strand_length <- length(strand)
+  motif_length <- length(motif)
+
+  result <- integer(0)  # Initialize result to integer(0)
+
+  for (i in 1:(strand_length - motif_length + 1)) { # iterates through strand
+    if (all(strand[i:(i + motif_length - 1)] == motif)) { # matches strand from start index to length of motif - 1 to all motif vector elements
+      result <- i:(i + motif_length - 1) # result is updated to the indices of matched elements
+      if (all(result >= 0)) {
+        break  # Exit the loop when a valid result is found
+      }
+    }
+  }
+  
+  result  # Return result (either a valid result or integer(0))
+}
+# Same output as 9a but vectorized hence index[1]
+locate_motif(dna1, c("G", "A", "T", "T", "A", "C", "A"))[1]
+
+extract_longest_substring <- function(strand1, strand2) {
+  # Initializers
+  s1_length <- length(strand1)
+  s2_length <- length(strand2)
+  shared_substring <- character(0)
+  shared_length <- 0
+  
+  # Nested for loops to iterate through indices for strand1 and strand2 and finds longest matched substring
+  for (i in 1:s1_length) {
+    for (j in 1:s2_length) {
+      # Start positions of both strand1 and strand2 used to find max length of the shared substring that can be checked at the current iteration
+      common_length <- min(s1_length - i + 1, s2_length - j + 1)
+      
+      if (common_length > shared_length) { 
+        motif <- locate_motif(strand1[i:(i + common_length - 1)], strand2[j:(j + common_length - 1)]) # motif searches for the matched motif in strand1 and strand2
+        motif_length <- length(motif)
+
+        if (motif_length > shared_length) {
+          shared_length <- motif_length
+          shared_substring <- strand1[i:(i + common_length - 1)] # Retrieve matched substring with greatest length
+        }
+      }
+    }
+  }
+  
+  if (shared_length == 0) { # For the output if no matched substring 
+    character(0)
+  } else { # For greatest matched substring
+    shared_substring
+  }
+}
+
+extract_longest_substring(seq1, seq2)
+extract_longest_substring(dna1, dna2)
+```
