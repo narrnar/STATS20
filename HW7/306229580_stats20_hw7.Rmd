@@ -1,0 +1,141 @@
+---
+title: "Stats 20, F23 -- Homework 7"
+author: "Daren Sathasivam -- 306229580"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1a}
+births <- read.csv("births.csv", stringsAsFactors = TRUE)
+str(births)
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1b}
+levels(births$Habit)
+births[births$Habit == "", ]
+sum(births$Habit == "")
+length(which(births$Habit == ""))
+```
+There are 6 observations with no information on the Habit of a mother. The name of the category for these observations is an empty string "". 
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1c}
+barplot(table(births$Habit), col = "goldenrod")
+```
+<!-- ENTER YOUR EXPLANATION BELOW (USING INLINE R AS YOU WILL) -->
+
+### (d)
+```{r}
+subset_births <- births[births$Habit %in% c("Smoker", "NonSmoker"), ]
+subset_births$Habit <- droplevels(subset_births$Habit)
+write.csv(subset_births, "subset_births.csv")
+```
+
+### (e)
+```{r}
+boxplot(weight ~ Habit, data = subset_births, col = c("lightblue", "goldenrod"))
+```
+
+
+## Question 2
+
+```{r Question 2}
+plot(Habit ~ weight, data = births)
+smokers <- births[births$Habit == "Smoker", ]
+non_smokers <- births[births$Habit == "NonSmoker", ]
+with(births, hist(weight[Habit == "Smoker"],
+  prob = TRUE, density = 10, col = "goldenrod",
+  main = "Histogram of Baby Weight by Mother's Smoker Status",
+  xlab = "Weight (in ounces)",
+  xlim = range(births$weight), ylim = c(0, 0.030)
+))
+with(births, hist(weight[Habit == "NonSmoker"],
+  prob = TRUE, density = 30, col = "lightblue",
+  breaks = 20, add = TRUE
+))
+lines(density(smokers$weight), lwd = 2, col = "goldenrod")
+lines(density(non_smokers$weight), lwd = 2, col = "lightblue")
+abline(v = median(smokers$weight), col = "goldenrod", lwd = 1.5, lty = 2)
+abline(v = median(non_smokers$weight), col = "lightblue", lwd = 1.5, lty = 2)
+legend("topright", c("Smoker", "Non Smoker", "Median Smoker", "Median Non Smoker"),
+  density = c(20, 30, NA, NA),
+  fill = c("goldenrod", "lightblue", "white", "white"),
+  lty = c(1, 1, 2, 2),
+  lwd = c(NA, NA, 1.5, 1.5),
+  col = c(NA, NA, "goldenrod", "lightblue"),
+  inset = 0.05
+)
+```
+<!-- ENTER YOUR EXPLANATION BELOW, FEEL FREE TO EDIT THE ABOVE CODE CHUNK -->
+
+## Question 3
+
+### (a)
+<!-- USE THE CODE CHUNK BELOW IF YOU'D LIKE -->
+```{r Question 3a, cache = TRUE}
+library(ggplot2)
+data(diamonds)
+# head(diamonds)
+pairs(diamonds[, c("carat", "depth", "table", "price")])
+```
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 3b}
+plot(price ~ carat, data = diamonds, col = diamonds$clarity, pch = 15, cex = 0.3)
+levels(diamonds$clarity)
+legend("topright", legend = levels(diamonds$clarity), col = 1:8, pch = 16, cex = 1)
+```
+The default colors of 1 to 8 are chosen because the number of levels the clarity object contains is 8. Each level receives a different color, hence the 8 different colors.
+
+### (c)
+```{r}
+new_colors <- c("darkmagenta", "firebrick1", "darkslategray1", "darkseagreen1", "darkorange", "lemonchiffon", "midnightblue", "slateblue4")
+plot(price ~ carat, data = diamonds, col = new_colors[diamonds$clarity], pch = 15, cex = 0.3)
+legend("topright", legend = levels(diamonds$clarity), col = new_colors, pch = 16, cex = 1)
+```
+
+### (d)
+The three way relationship tells viewers that there is correlation between a diamond's price and the carat. Additionally, a user can observe patterns in the clarity in correlation to both price and the carat of a diamond. For example, it can be observed that the l1 diamonds tend to be cheaper in comparison to Sl2 diamonds.
+
+## Question 4
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 4a}
+# levels(diamonds$cut)
+# levels(diamonds$color)
+as.matrix(tapply(diamonds$price, list(diamonds$color, diamonds$cut), mean))
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 4b}
+mean_matrix <- as.matrix(tapply(diamonds$price, list(diamonds$color, diamonds$cut), mean))
+
+matplot(mean_matrix, type = "l", lty = 1:5, lwd = 2, col = seq_len(ncol(mean_matrix)), xaxt = "n", xlab = "Color", ylab = "Mean Price", main = "Mean Prices for Color and Cut Combinations")
+
+legend("bottomright", legend = levels(diamonds$cut), col = seq_len(ncol(mean_matrix)), lty = 1:5, lwd = 2, title = "Cut Levels", cex = 1)
+
+axis(1, at = seq_len(nrow(mean_matrix)), labels = levels(diamonds$color))
+```
+
+
+### (c)
+The mean price of diamonds differs for the different levels of color due to the mean price increasing across the levels of color. As for each cut, they are relatively similar with no noticeable difference between the mean prices. The higher mean price tends to be higher within the color range of "I" and "J" and the cut being "premium". However, between the color range from "H" and "J", the "fair" and "premium" cuts have the highest average price.
+
